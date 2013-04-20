@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements. See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership. Sveriges Kommuner och Landsting licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License. You may obtain a copy of the License at
+ 
+ http://www.apache.org/licenses/LICENSE-2.0
+ 
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied. See the License for the
+ specific language governing permissions and limitations
+ under the License.
+ -->
+<wsdl:definitions name="HamtaArbetsloshetsersattningInteraction"
+    targetNamespace="urn:shs:skl:ekonomisktbistand:HamtaArbetsloshetsersattning:1:shsbp10" 
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+    xmlns:tns="urn:shs:skl:ekonomisktbistand:HamtaArbetsloshetsersattning:1:shsbp10"
+    xmlns:sr="urn:shs:skl:ekonomisktbistand:HamtaArbetsloshetsersattningResponder:1">
+    
+    <wsdl:documentation>
+        Tjänsteinteraktionens namn:
+            HamtaArbetsloshetsersattningInteraction
+        Beskrivning: 
+            Hämtar arbetsköshetsersättning etc. från a-kassornas samarbetsorgansiation (SO)
+        Revisioner: 
+            2013-03-11: Utkast 1.0 RC1, peter.larsson@callistaenterprise.se
+            2013-04-20: Utkast 1.0 RC2, peter.larsson@callistaenterprise.se            
+        Tjänstedomän: 
+            eif:ekonomisktbistand
+        Tjänsteinteraktionstyp: 
+            Fråga-svar
+            SHS Version 2.0 SOAP-based Protocol, SHSBP10
+        Färvaltning: 
+            TBD
+    </wsdl:documentation>
+    
+    <wsdl:types>
+        <xs:schema>
+            <xs:import schemaLocation="HamtaArbetsloshetsersattningResponder_1.0.xsd" namespace="urn:shs:skl:ekonomisktbistand:HamtaArbetsloshetsersattningResponder:1" />
+        </xs:schema>
+    </wsdl:types>
+    
+    <wsdl:message name="HamtaArbetsloshetsersattningRequest">
+        <wsdl:part name="request" element="sr:HamtaArbetsloshetsersattning" />
+    </wsdl:message>
+    
+    <wsdl:message name="HamtaArbetsloshetsersattningResponse">
+        <wsdl:part name="response" element="sr:HamtaArbetsloshetsersattningResponse" />
+    </wsdl:message>
+    
+    <wsdl:portType name="HamtaArbetsloshetsersattningResponderInterface">
+        <wsdl:operation name="HamtaArbetsloshetsersattning">
+            <wsdl:input message="tns:HamtaArbetsloshetsersattningRequest" />
+            <wsdl:output message="tns:HamtaArbetsloshetsersattningResponse" />
+        </wsdl:operation>
+    </wsdl:portType>
+    
+    <wsdl:binding name="HamtaArbetsloshetsersattningResponderBinding" type="tns:HamtaArbetsloshetsersattningResponderInterface">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+        <wsdl:operation name="HamtaArbetsloshetsersattning">
+            <soap:operation soapAction="urn:shs:skl:ekonomisktbistand:HamtaArbetsloshetsersattningResponder:1:HamtaArbetsloshetsersattning" style="document" />
+            <wsdl:input>
+                <soap:body use="literal" parts="request" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal" />
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    
+    <wsdl:service name="HamtaArbetsloshetsersattningResponderService">
+        <wsdl:port name="HamtaArbetsloshetsersattningResponderPort" binding="tns:HamtaArbetsloshetsersattningResponderBinding">
+            <soap:address location="http://tempuri.org"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

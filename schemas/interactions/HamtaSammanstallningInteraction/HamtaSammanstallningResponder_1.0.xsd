@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements. See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership. Sveriges Kommuner och Landsting licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License. You may obtain a copy of the License at
+    
+    http://www.apache.org/licenses/LICENSE-2.0
+    
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied. See the License for the
+    specific language govern    ing permissions and limitations
+    under the License.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+    xmlns:tns="urn:shs:skl:ekonomisktbistand:HamtaSammanstallningResponder:1" 
+    xmlns:core="urn:shs:skl:ekonomisktbistand:1"
+    targetNamespace="urn:shs:skl:ekonomisktbistand:HamtaSammanstallningResponder:1"
+    elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0">
+    
+    <xs:import schemaLocation="../../core_components/eif_ekonomisktbistand_composite_1.0.xsd" namespace="urn:shs:skl:ekonomisktbistand:1" />
+    
+    <xs:element name="HamtaSammanstallning">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="core:Fraga">
+                    <xs:sequence>
+                        <xs:element name="hamtaArbetsmarknadsatgarder" type="xs:boolean" />
+                        <xs:element name="hamtaArbetsloshetsersattning" type="xs:boolean" />
+                        <xs:element name="hamtaSocialforsakringsformaner" type="xs:boolean" />
+                        <xs:element name="hamtaBeskattning" type="xs:boolean" />
+                        <xs:element name="hamtaStudiestod" type="xs:boolean" />
+                    </xs:sequence>                  
+                </xs:extension>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="HamtaSammanstallningResponse" type="tns:HamtaSammanstallningResponseType" />
+    
+    <xs:complexType name="HamtaSammanstallningResponseType">
+        <xs:sequence>
+            <xs:element name="arbetsatgarderResponse" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="status" type="core:Status" />
+                        <xs:element name="arbetsmarknadsatgarder" type="core:Arbetsmarknadsatgarder" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="arbetsloshetsersattningResponse" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="status" type="core:Status" />
+                        <xs:element name="arbetsloshetsersattning" type="core:Arbetsloshetsersattning" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="socialforsakringsformanerResponse" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="status" type="core:Status" />
+                        <xs:element name="socialforsakringsformaner" type="core:Socialforsakringsformaner" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="beskattningResponse" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="status" type="core:Status" />
+                        <xs:element name="beskattning" type="core:Beskattning" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>                   
+            <xs:element name="studiestodResponse" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="status" type="core:Status" />
+                        <xs:element name="studiestod" type="core:Studiestod" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>                   
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

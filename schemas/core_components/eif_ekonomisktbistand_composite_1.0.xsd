@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements. See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership. Sveriges Kommuner och Landsting licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License. You may obtain a copy of the License at
+    
+    http://www.apache.org/licenses/LICENSE-2.0
+    
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied. See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="urn:shs:skl:ekonomisktbistand:1"
+    targetNamespace="urn:shs:skl:ekonomisktbistand:1" elementFormDefault="qualified"
+    attributeFormDefault="unqualified" version="1.0">
+    
+    <!-- Datumformat i enlighet med ISO (tidszonindikator behövs ej för närvarande)-->
+    <xs:simpleType name="ISODatum">
+        <xs:annotation>
+            <xs:documentation>Datum i enlgihet med ISO 8601 utan tidszon.</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:date">
+            <xs:pattern value="[^:Z]*"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <!-- Belopp i kronor -->
+    <xs:simpleType name="Belopp">
+        <xs:restriction base="xs:unsignedLong">
+            <xs:minInclusive value="0"/>
+            <xs:maxInclusive value="999999999999"/>    
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <!-- Årtal "ÅÅÅÅ" -->
+    <xs:simpleType name="Artal">
+        <xs:restriction base="xs:unsignedShort">
+            <xs:minInclusive value="1970"/>
+            <xs:maxInclusive value="9999"/>    
+        </xs:restriction>      
+    </xs:simpleType>
+        
+    
+    <!-- Generell infomration för en fråga -->
+    <xs:complexType name="Fraga">
+        <xs:annotation>
+            <xs:documentation>Generell fråga som används för samtliga interaktioner.</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="organisationsnummer" type="xs:string"/>
+            <xs:element name="identitetsbeteckningfysiskperson" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Kan vara "Personnummer", '"Samordningsnummer" eller "Tilldelat personnummer". 
+                        Personnummer: 197601279370 Samordningsnummer: 196203721234 (obs plus 60 i dag-siffran)</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="arendeidentitet" type="xs:string"/>
+            <xs:element name="handlaggare" type="xs:string"/>
+            <xs:element name="ingivare" type="xs:string"/>
+            <xs:element name="personuppgiftsbitrade">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="namn" type="xs:string"/>
+                        <xs:element name="organisationsnummer" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="from" type="tns:ISODatum"/>
+            <xs:element name="tom" type="tns:ISODatum"/>
+            <xs:any namespace="#other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <!-- Generell information som beskriver ett färmånsbeslut -->
+    <xs:complexType name="FormansBeslut">
+        <xs:annotation>
+            <xs:documentation>Gemensam information om beslut om förmån.</xs:documentation>
+        </xs:annotation> 
+        <xs:sequence>
+            <xs:element name="ansokaninkommen" type="xs:boolean"/>
+            <xs:element name="beslut" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="beslutsdatum" type="tns:ISODatum"/>
+                        <xs:element name="beslutskod" type="xs:string"/>
+                        <xs:element name="from" type="tns:ISODatum"/>
+                        <xs:element name="tom" type="tns:ISODatum" minOccurs="0"/>
+                        <xs:element name="periodtyp" type="xs:string">
+                            <xs:annotation>
+                                <xs:documentation>Kravet är att veta om beslutet är retroaktivt eller tillsvidare. Uppgiftlämnarens kodverk kan kanske användas eller så bör detta specas bättre?</xs:documentation>
+                            </xs:annotation>
+                        </xs:element>
+                        <xs:element name="nettobelopp" type="tns:Belopp"/>
+                        <xs:element name="bruttobelopp" type="tns:Belopp"/>
+                        <xs:element name="avdragsbelopp" type="tns:Belopp" minOccurs="0"/>
+                        <xs:element name="skattebelopp" type="tns:Belopp" minOccurs="0"/>
+                        <xs:element name="omfattning" type="tns:Omfattning"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:any namespace="#other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:simpleType name="StatusKod">
+        <xs:annotation>
+            <xs:documentation>Statuskoder som används för att indikera om frågan behandlats eller om något problem föreligger.</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="OK"/>
+            <xs:enumeration value="SKYDDADIDENTITET"/>
+            <xs:enumeration value="ATKOMSTNEKAD"/>
+            <xs:enumeration value="UPPGIFTSAKNAS"/>
+            <xs:enumeration value="OGILTIGTIDSPERIOD"/>
+            <xs:enumeration value="VALIDERINGSFEL"/>
+            <xs:enumeration value="ANNATFEL"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:complexType name="Status">
+        <xs:annotation>
+            <xs:documentation>Status som returneras för varje fråga.</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="kod" type="tns:StatusKod"/>
+            <xs:element name="meddelande" type="xs:string" minOccurs="0"/>
+            <xs:any namespace="#other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:simpleType name="Omfattning">
+        <xs:annotation>
+            <xs:documentation>Omfattning i procent.</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:unsignedShort">
+            <xs:minInclusive value="0"/>
+            <xs:maxInclusive value="100"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <!-- Information om arbetsåtgäder -->
+    <xs:complexType name="Arbetsmarknadsatgarder">
+        <xs:sequence>
+            <!--    Omfråga, hur ska detta hanteras???
+                dvs. man vill kolla hur en gammal fråga ser ut
+            -->
+            <!-- Lista med beslut -->
+            <xs:element name="arbetssokandestatus" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="arbetssokande" type="xs:boolean"/>
+                        <xs:element name="datum" type="tns:ISODatum"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            
+            <xs:element name="aktivregistreringstatus" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="aktivregistrering" type="xs:boolean"/>
+                        <xs:element name="datum" type="tns:ISODatum"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            
+            <xs:element name="omfattningstatus" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="omfattning" type="tns:Omfattning"/>
+                        <xs:element name="datum" type="tns:ISODatum"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            
+            <xs:element name="avaktualiseradstatus" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="avaktualiserad" type="xs:short"/>
+                        <xs:element name="datum" type="tns:ISODatum"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            
+            <xs:element name="akassatillhorghet" type="xs:string"/>
+            <xs:element name="insatstyp" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+            
+            <xs:element name="etableringsersattningsstatus">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="etableringsersattning" type="xs:boolean"/>
+                        <xs:element name="datum" type="tns:ISODatum" minOccurs="0"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:any namespace="#other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <!--Information om arbetslöshetsersättning -->
+    <xs:complexType name="Arbetsloshetsersattning">
+        <xs:sequence>
+            <xs:element name="akassatillhorghet" type="xs:string" minOccurs="0"/>
+            <xs:element name="arbetsloshetsersattning" type="tns:FormansBeslut" minOccurs="0"/>
+            <xs:element name="uteslutning" type="xs:boolean"/>
+            <xs:element name="frankannande" type="xs:boolean"/>
+            <xs:element name="frankannandefrom" type="tns:ISODatum" minOccurs="0"/>
+            <xs:element name="frankannandetom" type="tns:ISODatum" minOccurs="0"/>
+            <xs:any namespace="#other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <!-- Information om socialförsäkringsförmåner -->
+    <xs:complexType name="Socialforsakringsformaner">
+        <xs:sequence>
+            <xs:element name="sjukpenning" type="tns:FormansBeslut" minOccurs="0"/>
+            <xs:element name="narstaendepenning" type="tns:FormansBeslut" minOccurs="0"/>
+            <xs:element name="foraldrapenning" type="tns:FormansBeslut" minOccurs="0"/>
+            <xs:element name="jamstalldhetsbonus" type="tns:FormansBeslut" minOccurs="0"/>
+            <xs:element name="havandeksapsersattning" type="tns:FormansBeslut" minOccurs="0"/>
+            <xs:element name="bostadsbidrag" type="tns:FormansBeslut" minOccurs="0"/>
+            <xs:element name="underhallsstod" type="tns:FormansBeslut" minOccurs="0"/>
+            <xs:element name="dagpenning" type="tns:FormansBeslut" minOccurs="0"/>
+            <xs:element name="efterlevandepension" type="tns:FormansBeslut" minOccurs="0"/>
+            <xs:element name="sjukersattning" type="tns:FormansBeslut" minOccurs="0"/>
+            <xs:element name="boendetilagg" type="tns:FormansBeslut" minOccurs="0"/>
+            <xs:element name="etableringsersattning" type="tns:FormansBeslut" minOccurs="0"/>
+            <xs:element name="etableringstillagg" type="tns:FormansBeslut" minOccurs="0"/>
+            <xs:element name="aktivitetsersattning" type="tns:FormansBeslut" minOccurs="0"/>
+            <xs:element name="aktivitetsstod" type="tns:FormansBeslut" minOccurs="0"/>
+            <xs:element name="handikappersattning" type="tns:FormansBeslut" minOccurs="0"/>
+            <xs:element name="rehabiliteringsersattning" type="tns:FormansBeslut" minOccurs="0"/>
+            <xs:element name="vardbidrag" type="tns:FormansBeslut" minOccurs="0"/>
+            <xs:element name="aldreforsorjningsstod" type="tns:FormansBeslut" minOccurs="0"/>
+            <xs:element name="pension" type="tns:FormansBeslut" minOccurs="0"/>
+            <xs:element name="arbetsskadelivranta" type="tns:FormansBeslut" minOccurs="0"/>
+            <xs:element name="yrkesskadelivranta" type="tns:FormansBeslut" minOccurs="0"/>
+            <xs:any namespace="#other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <!-- Infromation om studestöd -->
+    <xs:complexType name="Studiestod">
+        <xs:sequence>
+            <xs:element name="grundskoleniva" type="xs:boolean"/>
+            <xs:element name="studielantillagg" type="tns:FormansBeslut"/>
+            <xs:element name="studiebidrag" type="tns:FormansBeslut"/>
+            <xs:element name="studiebidragtillagg" type="tns:FormansBeslut"/>
+            <xs:element name="merkostnadslan" type="tns:FormansBeslut"/>
+            <xs:element name="studiehjalp" type="tns:FormansBeslut"/>
+            <xs:element name="hemutrustningslan" type="tns:FormansBeslut"/>
+            <xs:any namespace="#other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <!-- Infromation om  beskattning -->
+    <xs:complexType name="Beskattning">
+        <xs:sequence>
+            <xs:element name="taxeringsar" type="tns:Artal" minOccurs="0"/>
+            <xs:element name="summaintakterkapital" type="tns:Belopp" minOccurs="0"/>
+            <xs:element name="ovserskottpakaptial" type="tns:Belopp" minOccurs="0"/>
+            <xs:element name="utebtaltbelopptillkontohavare" type="tns:Belopp" minOccurs="0"/>
+            <xs:element name="bokforingsdagforutbetalningar" type="tns:ISODatum" minOccurs="0"/>
+            <xs:any namespace="#other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+</xs:schema>
